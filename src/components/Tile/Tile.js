@@ -1,5 +1,4 @@
 import React from 'react'
-
 import './Tile.css'
 
 const Tile = (props) => {
@@ -13,7 +12,7 @@ const Tile = (props) => {
 
   // Conditionally render the svg
   return (
-    <div className='Tile' style={color}>
+    <div className='Tile' style={color} onClick={()=>{props.handleTileClicked(props.id, props.color)}}>
       { props.selected || props.matched ?<props.svg/>:null }
     </div>
   )

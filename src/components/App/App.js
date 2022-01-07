@@ -3,7 +3,7 @@ import OptionsPanel from '../OptionsPanel'
 import Board from '../Board'
 
 import './App.css';
-import {createTiles} from '../../misc/utils'
+import {createTiles, indexOfSelected} from '../../misc/utils'
 
 class App extends Component{
 
@@ -20,14 +20,58 @@ class App extends Component{
       }
   }
 
-  startGame(numTiles)
-  {
+  startGame= (numTiles) => {
     this.setState((state) => {
       return{
         playing: true,
         previousTileIndex: null,
         toBeCleared: null, 
-        tiles: createTiles(state.numTiles),
+        tiles: createTiles(state.numTiles, this.handleTileClicked()),
+      }
+    })
+  }
+
+  handleTileClicked = (id,color) => {
+    this.setState((state) => {
+      const tiles = this.state.tiles
+      const toBeCleared = this.state.toBeCleared
+      const selectedTileIndex = indexOfSelected(tiles, id,color)
+      const previousTileIndex = this.state.previousTileIndex
+
+      // Clear mismatched tiles
+      if(toBeCleared !== null)
+      {
+        tiles[toBeCleared[0]].selected = false
+        tiles[toBeCleared[1]].selected = false
+        toBeCleared = null
+      }
+
+      if( previousTileIndex !== null )
+      {
+        const previousTile = this.state.tiles[previousTileIndex]
+        const selectedTile = this.state.tiles[selectedTileIndex]
+        
+        // Handle a matched tile
+        if(previousTile.id !== selectedTile.id && previousTile.color === color)
+        {
+          selectedTile.matched = true
+          previousTile.matched = true
+          previousTileIndex = null
+        }
+        else
+        {// mismatched
+          previousTileIndex = selectedTileIndex
+          toBeCleared = [previousTileIndex, selectedTileIndex]
+          previousTileIndex = null
+        }
+      }
+      
+      // Set the clicked tile to selected
+      tiles[selectedTileIndex].selected = true
+
+      return{
+        toBeCleared,
+        tiles,
       }
     })
   }
