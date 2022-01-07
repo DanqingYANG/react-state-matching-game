@@ -21,22 +21,22 @@ class App extends Component{
   }
 
   startGame= (numTiles) => {
-    this.setState((state) => {
-      return{
+    this.setState((state) => ({
+      
         playing: true,
         previousTileIndex: null,
         toBeCleared: null, 
-        tiles: createTiles(state.numTiles, this.handleTileClicked()),
-      }
-    })
+        tiles: createTiles(state.numTiles, this.handleTileClicked),
+      
+    }))
   }
 
   handleTileClicked = (id,color) => {
     this.setState((state) => {
-      const tiles = this.state.tiles
-      const toBeCleared = this.state.toBeCleared
-      const selectedTileIndex = indexOfSelected(tiles, id,color)
-      const previousTileIndex = this.state.previousTileIndex
+      const tiles = state.tiles
+      let toBeCleared = state.toBeCleared
+      const selectedTileIndex = indexOfSelected(tiles, id, color)
+      let previousTileIndex = state.previousTileIndex
 
       // Clear mismatched tiles
       if(toBeCleared !== null)
@@ -46,11 +46,16 @@ class App extends Component{
         toBeCleared = null
       }
 
+      // Set the clicked tile to selected
+      tiles[selectedTileIndex].selected = true
+
       if( previousTileIndex !== null )
       {
-        const previousTile = this.state.tiles[previousTileIndex]
-        const selectedTile = this.state.tiles[selectedTileIndex]
-        
+        // const previousTile = this.state.tiles[previousTileIndex]
+        // const selectedTile = this.state.tiles[selectedTileIndex]
+        const previousTile = tiles[previousTileIndex]
+        const selectedTile = tiles[selectedTileIndex]
+
         // Handle a matched tile
         if(previousTile.id !== selectedTile.id && previousTile.color === color)
         {
@@ -59,19 +64,20 @@ class App extends Component{
           previousTileIndex = null
         }
         else
-        {// mismatched
-          previousTileIndex = selectedTileIndex
+        {
           toBeCleared = [previousTileIndex, selectedTileIndex]
           previousTileIndex = null
         }
       }
+      else{
+        previousTileIndex = selectedTileIndex
+      }
       
-      // Set the clicked tile to selected
-      tiles[selectedTileIndex].selected = true
 
       return{
         toBeCleared,
         tiles,
+        previousTileIndex
       }
     })
   }
